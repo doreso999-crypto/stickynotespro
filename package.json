@@ -1,0 +1,15 @@
+{
+  "name": "stickynotespro",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Offline desktop sticky notes with a separate management dashboard",
+  "main": "src/main/index.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "start:x11": "electron . --ozone-platform=x11"
+  },
+  "devDependencies": {
+    "electron": "44.7.0"
+  }
+}
