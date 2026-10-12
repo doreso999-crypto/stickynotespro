@@ -2,56 +2,76 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'"
     />
     <title>StickyNotesPro</title>
-    <link rel="stylesheet" href="styles/shared.css" />
+    <link rel="stylesheet" href="styles/base.css" />
     <link rel="stylesheet" href="styles/dashboard.css" />
   </head>
-  <body>
-    <!-- Dashboard layout: change structure here; behavior lives in dashboard.js. -->
-    <main id="app" class="dashboard">
-      <aside>
+
+  <body class="dashboard-page">
+    <main id="dashboard-app" class="dashboard-shell" data-view="active">
+      <aside class="sidebar" aria-label="Workspace navigation">
         <div class="brand">
-          ▣
-          <strong>StickyNotesPro</strong>
+          <span class="brand-mark" aria-hidden="true">S</span>
+          <div>
+            <strong>StickyNotesPro</strong>
+            <span>Desktop notes</span>
+          </div>
         </div>
-        <p class="eyebrow">YOUR WORKSPACE</p>
-        <nav id="views">
-          <button id="active-view">Active notes</button>
-          <button id="archive-view">Archive</button>
+
+        <nav class="sidebar-nav" aria-label="Note views">
+          <button id="active-view" class="nav-button" type="button" aria-pressed="true">
+            <span>Active notes</span>
+          </button>
+          <button id="archive-view" class="nav-button" type="button" aria-pressed="false">
+            <span>Archive</span>
+          </button>
         </nav>
-        <p class="sidebar-foot">
-          A little space for
-          <br />
-          everything on your mind.
+
+        <p class="sidebar-note">
+          Your notes stay local to this computer and reopen with their saved size and position.
         </p>
       </aside>
-      <section class="workspace">
-        <header>
-          <div>
-            <p class="eyebrow">CLEAR DESK. CLEAR MIND.</p>
-            <h1>
-              Your notes
-              <span>.</span>
+
+      <section class="workspace" aria-labelledby="workspace-title">
+        <header class="workspace-header">
+          <div class="workspace-heading">
+            <p class="eyebrow">WORKSPACE</p>
+            <h1 id="workspace-title">
+              <span class="view-title view-title-active">Your notes</span>
+              <span class="view-title view-title-archive">Archive</span>
             </h1>
-            <p class="muted">Keep your thoughts close and your work in view.</p>
+            <p class="workspace-description view-description-active">
+              Keep the notes you are working with close and easy to manage.
+            </p>
+            <p class="workspace-description view-description-archive">
+              Restore old notes or permanently remove the ones you no longer need.
+            </p>
           </div>
-          <div id="new">
-            <button id="new-note" class="primary">+ New note</button>
-          </div>
+
+          <button id="new-note" class="button button-primary" type="button">
+            <span aria-hidden="true">+</span>
+            <span>New note</span>
+          </button>
         </header>
-        <div class="filters">
-          <input
-            id="search"
-            aria-label="Search notes"
-            placeholder="Search title or content…"
-          />
-          <label>
-            Sort
+
+        <section class="toolbar" aria-label="Note filters">
+          <label class="search-field" for="search">
+            <span class="sr-only">Search notes</span>
+            <input
+              id="search"
+              type="search"
+              autocomplete="off"
+              placeholder="Search title or content"
+            />
+          </label>
+
+          <label class="sort-field" for="sort">
+            <span>Sort by</span>
             <select id="sort">
               <option value="updated-desc">Last edited</option>
               <option value="created-desc">Newest created</option>
@@ -60,31 +80,76 @@
               <option value="title-desc">Title Z–A</option>
             </select>
           </label>
+        </section>
+
+        <div class="results-heading">
+          <p id="count" class="results-count" aria-live="polite">0 active notes</p>
         </div>
-        <p id="count" class="eyebrow" aria-live="polite"></p>
-        <div id="cards" class="cards"></div>
-        <p id="empty-state" class="empty" hidden></p>
+
+        <section id="cards" class="note-grid" aria-label="Notes"></section>
+
+        <section id="empty-state" class="empty-state" data-empty-reason="active" hidden>
+          <div class="empty-state-icon" aria-hidden="true">+</div>
+          <h2 class="empty-title empty-title-active">No active notes yet</h2>
+          <h2 class="empty-title empty-title-archive">Your archive is empty</h2>
+          <h2 class="empty-title empty-title-search">No notes matched your search</h2>
+
+          <p class="empty-copy empty-copy-active">
+            Create a note and it will appear here automatically.
+          </p>
+          <p class="empty-copy empty-copy-archive">
+            Notes you archive will be kept here until you restore or delete them.
+          </p>
+          <p class="empty-copy empty-copy-search">
+            Try a different title or keyword.
+          </p>
+        </section>
       </section>
     </main>
-    <!-- Edit this template to change the layout of every dashboard note card. -->
+
     <template id="note-card-template">
-      <article class="card">
-        <span class="eyebrow" data-field="state"></span>
-        <h2 data-field="title"></h2>
-        <p class="preview" data-field="body"></p>
-        <p class="dates" data-field="dates"></p>
-        <div class="card-actions">
-          <button data-action="open">Open</button>
-          <button data-action="restore">Restore</button>
-          <button data-action="duplicate">Duplicate</button>
-          <button data-action="hide">Hide</button>
-          <button data-action="archive">Archive</button>
-          <button data-action="pin">Pin</button>
-          <button data-action="delete" class="danger">Delete</button>
+      <article class="note-card" data-archived="false" data-pinned="false" data-visible="false">
+        <header class="note-card-header">
+          <div class="note-badges" aria-label="Note state">
+            <span class="badge badge-note">Note</span>
+            <span class="badge badge-pinned">Always on top</span>
+            <span class="badge badge-archived">Archived</span>
+          </div>
+        </header>
+
+        <div class="note-card-content">
+          <h2 data-field="title">Untitled note</h2>
+          <p class="note-preview" data-field="body">An empty note.</p>
         </div>
+
+        <dl class="note-metadata">
+          <div>
+            <dt>Created</dt>
+            <dd><time data-field="created"></time></dd>
+          </div>
+          <div>
+            <dt>Edited</dt>
+            <dd><time data-field="updated"></time></dd>
+          </div>
+        </dl>
+
+        <footer class="note-card-actions">
+          <button class="button button-secondary action-open" data-action="open" type="button">Open</button>
+          <button class="button button-secondary action-hide" data-action="hide" type="button">Hide</button>
+          <button class="button button-secondary action-restore" data-action="restore" type="button">Restore</button>
+          <button class="button button-secondary" data-action="duplicate" type="button">Duplicate</button>
+          <button class="button button-secondary action-archive" data-action="archive" type="button">Archive</button>
+          <button class="button button-secondary action-pin" data-action="toggle-pin" type="button">
+            <span class="pin-label">Pin</span>
+            <span class="unpin-label">Unpin</span>
+          </button>
+          <button class="button button-danger" data-action="delete" type="button">Delete</button>
+        </footer>
       </article>
     </template>
-    <p id="error" role="alert" hidden></p>
-    <script type="module" src="dashboard.js"></script>
+
+    <div id="error" class="error-banner" role="alert" hidden></div>
+
+    <script type="module" src="scripts/dashboard.js"></script>
   </body>
 </html>
