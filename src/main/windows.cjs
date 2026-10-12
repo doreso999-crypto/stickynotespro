@@ -1,4 +1,4 @@
-const { BrowserWindow, screen } = require("electron");
+const { BrowserWindow, dialog, screen } = require("electron");
 const path = require("node:path");
 
 class Windows {
@@ -8,6 +8,7 @@ class Windows {
     this.notes = new Map();
     this.dashboard = null;
   }
+
   create(options, query) {
     const win = new BrowserWindow({
       ...options,
@@ -20,8 +21,10 @@ class Windows {
         sandbox: true,
       },
     });
+
     win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
-    win.webContents.on("will-navigate", (e) => e.preventDefault());
+    win.webContents.on("will-navigate", (event) => event.preventDefault());
+
     win.loadFile(
       path.join(
         __dirname,
@@ -29,9 +32,11 @@ class Windows {
       ),
       { query },
     );
+
     win.once("ready-to-show", () => win.show());
     return win;
   }
+
   showDashboard() {
     if (!this.dashboard) {
       this.dashboard = this.create(
@@ -44,41 +49,52 @@ class Windows {
         },
         {},
       );
+
       this.dashboard.on("closed", () => {
         this.dashboard = null;
       });
     }
+
     this.dashboard.show();
     this.dashboard.focus();
   }
+
   open(id) {
     const note = this.store.get(id);
-    if (note.archived) throw new Error("Restore this note before opening it.");
-    if (this.notes.has(id)) {
-      this.notes.get(id).show();
-      this.notes.get(id).focus();
+    if (note.archived) {
+      throw new Error("Restore this note before opening it.");
+    }
+
+    const existingWindow = this.notes.get(id);
+    if (existingWindow) {
+      existingWindow.show();
+      existingWindow.focus();
       return;
     }
+
     let bounds = note.bounds;
-    const area = screen.getDisplayMatching({
+    const workArea = screen.getDisplayMatching({
       x: bounds.x ?? 0,
       y: bounds.y ?? 0,
       width: bounds.width,
       height: bounds.height,
     }).workArea;
+
     bounds = {
-      width: Math.min(Math.max(260, bounds.width), area.width),
-      height: Math.min(Math.max(200, bounds.height), area.height),
+      width: Math.min(Math.max(260, bounds.width), workArea.width),
+      height: Math.min(Math.max(200, bounds.height), workArea.height),
       x: Math.max(
-        area.x,
-        Math.min(bounds.x ?? area.x + 60, area.x + area.width - 260),
+        workArea.x,
+        Math.min(bounds.x ?? workArea.x + 60, workArea.x + workArea.width - 260),
       ),
       y: Math.max(
-        area.y,
-        Math.min(bounds.y ?? area.y + 60, area.y + area.height - 200),
+        workArea.y,
+        Math.min(bounds.y ?? workArea.y + 60, workArea.y + workArea.height - 200),
       ),
     };
+
     this.store.update(id, { visible: true });
+
     const win = this.create(
       {
         ...bounds,
@@ -90,57 +106,73 @@ class Windows {
       },
       { note: id },
     );
+
     this.notes.set(id, win);
-    let timer;
-    const persist = () => {
-      clearTimeout(timer);
+
+    let boundsTimer;
+    const persistBounds = () => {
+      clearTimeout(boundsTimer);
+
       try {
         this.store.update(id, { bounds: win.getBounds() });
       } catch (error) {
-        require("electron").dialog.showErrorBox(
-          "Could not save window position",
-          error.message,
-        );
+        dialog.showErrorBox("Could not save window position", error.message);
       }
     };
-    for (const event of ["resize", "move"])
-      win.on(event, () => {
-        clearTimeout(timer);
-        timer = setTimeout(persist, 250);
+
+    for (const eventName of ["resize", "move"]) {
+      win.on(eventName, () => {
+        clearTimeout(boundsTimer);
+        boundsTimer = setTimeout(persistBounds, 250);
       });
+    }
+
+    win.persistBounds = persistBounds;
+
     win.on("close", (event) => {
       event.preventDefault();
-      this.close(id).catch((error) =>
-        require("electron").dialog.showErrorBox(
-          "Could not close note",
-          error.message,
-        ),
-      );
+      this.hide(id).catch((error) => {
+        dialog.showErrorBox("Could not hide note", error.message);
+      });
     });
-    win.persistBounds = persist;
+
     win.on("closed", () => {
-      clearTimeout(timer);
+      clearTimeout(boundsTimer);
       this.notes.delete(id);
     });
+
     this.changed();
   }
+
   async close(id) {
     const win = this.notes.get(id);
     if (!win || win.isDestroyed()) return;
+
     await win.webContents.executeJavaScript(
       "window.flushNote ? window.flushNote() : Promise.resolve()",
     );
+
     if (win.isDestroyed()) return;
+
     win.persistBounds();
     win.destroy();
   }
+
+  async hide(id, notify = true) {
+    await this.close(id);
+    this.store.update(id, { visible: false });
+    if (notify) this.changed();
+  }
+
   sync(id) {
-    const note = this.store.get(id),
-      win = this.notes.get(id);
-    if (win) {
-      win.setAlwaysOnTop(note.pinned);
-      win.setTitle(note.title);
-    }
+    const note = this.store.get(id);
+    const win = this.notes.get(id);
+
+    if (!win) return;
+
+    win.setAlwaysOnTop(note.pinned);
+    win.setTitle(note.title);
   }
 }
+
 module.exports = { Windows };
