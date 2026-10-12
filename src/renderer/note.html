@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'"
+    />
+    <title>StickyNotesPro</title>
+    <link rel="stylesheet" href="styles/shared.css" />
+    <link rel="stylesheet" href="styles/note.css" />
+  </head>
+  <body class="note-window">
+    <!-- Note layout: change structure here; behavior lives in note.js. -->
+    <main id="app" class="">
+      <div class="note-toolbar">
+        <button id="new-note">+ New</button>
+        <button id="pin-note" aria-pressed="true">● Pinned</button>
+        <details>
+          <summary>More</summary>
+          <div class="note-menu">
+            <button data-action="duplicate">Duplicate</button>
+            <button data-action="hide">Hide note</button>
+            <button data-action="archive">Archive</button>
+            <button data-action="delete" class="danger">
+              Delete permanently
+            </button>
+          </div>
+        </details>
+      </div>
+      <label class="sr-only" for="title">Note title</label>
+      <input id="title" maxlength="200" placeholder="Note title" />
+      <label class="sr-only" for="body">Note content</label>
+      <textarea
+        id="body"
+        maxlength="1000000"
+        placeholder="Make room for a thought…"
+      ></textarea>
+      <footer>
+        <span id="save-status" role="status">Saved</span>
+        <button id="dashboard">Dashboard ↗</button>
+      </footer>
+    </main>
+
+    <p id="error" role="alert" hidden></p>
+    <script type="module" src="note.js"></script>
+  </body>
+</html>

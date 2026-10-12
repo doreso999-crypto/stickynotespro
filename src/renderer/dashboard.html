@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'; base-uri 'none'"
+    />
+    <title>StickyNotesPro</title>
+    <link rel="stylesheet" href="styles/shared.css" />
+    <link rel="stylesheet" href="styles/dashboard.css" />
+  </head>
+  <body>
+    <!-- Dashboard layout: change structure here; behavior lives in dashboard.js. -->
+    <main id="app" class="dashboard">
+      <aside>
+        <div class="brand">
+          ▣
+          <strong>StickyNotesPro</strong>
+        </div>
+        <p class="eyebrow">YOUR WORKSPACE</p>
+        <nav id="views">
+          <button id="active-view">Active notes</button>
+          <button id="archive-view">Archive</button>
+        </nav>
+        <p class="sidebar-foot">
+          A little space for
+          <br />
+          everything on your mind.
+        </p>
+      </aside>
+      <section class="workspace">
+        <header>
+          <div>
+            <p class="eyebrow">CLEAR DESK. CLEAR MIND.</p>
+            <h1>
+              Your notes
+              <span>.</span>
+            </h1>
+            <p class="muted">Keep your thoughts close and your work in view.</p>
+          </div>
+          <div id="new">
+            <button id="new-note" class="primary">+ New note</button>
+          </div>
+        </header>
+        <div class="filters">
+          <input
+            id="search"
+            aria-label="Search notes"
+            placeholder="Search title or content…"
+          />
+          <label>
+            Sort
+            <select id="sort">
+              <option value="updated-desc">Last edited</option>
+              <option value="created-desc">Newest created</option>
+              <option value="created-asc">Oldest created</option>
+              <option value="title-asc">Title A–Z</option>
+              <option value="title-desc">Title Z–A</option>
+            </select>
+          </label>
+        </div>
+        <p id="count" class="eyebrow" aria-live="polite"></p>
+        <div id="cards" class="cards"></div>
+        <p id="empty-state" class="empty" hidden></p>
+      </section>
+    </main>
+    <!-- Edit this template to change the layout of every dashboard note card. -->
+    <template id="note-card-template">
+      <article class="card">
+        <span class="eyebrow" data-field="state"></span>
+        <h2 data-field="title"></h2>
+        <p class="preview" data-field="body"></p>
+        <p class="dates" data-field="dates"></p>
+        <div class="card-actions">
+          <button data-action="open">Open</button>
+          <button data-action="restore">Restore</button>
+          <button data-action="duplicate">Duplicate</button>
+          <button data-action="hide">Hide</button>
+          <button data-action="archive">Archive</button>
+          <button data-action="pin">Pin</button>
+          <button data-action="delete" class="danger">Delete</button>
+        </div>
+      </article>
+    </template>
+    <p id="error" role="alert" hidden></p>
+    <script type="module" src="dashboard.js"></script>
+  </body>
+</html>

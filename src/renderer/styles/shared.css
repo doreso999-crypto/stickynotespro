@@ -1,0 +1,79 @@
+/* Shared styles */
+:root {
+  font-family:
+    Inter,
+    Segoe UI,
+    system-ui,
+    sans-serif;
+  color: #243e37;
+  background: #f7f8f5;
+  font-size: 14px;
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button,
+summary {
+  cursor: pointer;
+}
+button {
+  border: 1px solid #d9dfd8;
+  border-radius: 8px;
+  padding: 9px 12px;
+  background: #fff;
+  color: inherit;
+}
+button:hover {
+  background: #e8eee7;
+}
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #277c60;
+  outline-offset: 2px;
+}
+
+input,
+select {
+  border: 1px solid #dce2d8;
+  border-radius: 8px;
+  background: white;
+  padding: 11px;
+  color: inherit;
+}
+
+.danger {
+  color: #a7433b;
+}
+
+#error {
+  position: fixed;
+  bottom: 8px;
+  left: 16px;
+  right: 16px;
+  z-index: 10;
+  background: #8e2929;
+  color: #fff;
+  padding: 14px;
+  border-radius: 8px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}

@@ -22,7 +22,13 @@ class Windows {
     });
     win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
     win.webContents.on("will-navigate", (e) => e.preventDefault());
-    win.loadFile(path.join(__dirname, "../renderer/index.html"), { query });
+    win.loadFile(
+      path.join(
+        __dirname,
+        query.note ? "../renderer/note.html" : "../renderer/dashboard.html",
+      ),
+      { query },
+    );
     win.once("ready-to-show", () => win.show());
     return win;
   }
